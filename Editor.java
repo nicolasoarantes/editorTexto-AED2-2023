@@ -1,11 +1,3 @@
-package editorTexto;
-
-import java.awt.*;
-import javax.swing.*;
-import java.io.*;
-import java.awt.event.*;
-import javax.swing.text.*;
-import javax.swing.event.*;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,7 +7,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.JFileChooser;
@@ -40,13 +36,16 @@ class Editor extends JFrame implements ActionListener {
     HighlightPainter highlightPainter;
     HashSet<String> dictionary;
     boolean dictionaryLoaded;
-
+    Hash hash = new Hash(10);
+    
     Editor() {
+        System.setProperty("file.encoding", "UTF-8");
         frame = new JFrame("Editor");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Create a text area
         textArea = new JTextArea();
+        DefaultContextMenu.addDefaultContextMenu(textArea, hash);
 
         // Create a scroll pane and add the text area to it
         JScrollPane scrollPane = new JScrollPane(textArea);
@@ -136,11 +135,13 @@ class Editor extends JFrame implements ActionListener {
 
     // Load the dictionary from file
     private void loadDictionary() {
+
         try {
             BufferedReader reader = new BufferedReader(new FileReader("dictionary.txt"));
             String word;
             dictionary = new HashSet<>();
             while ((word = reader.readLine()) != null) {
+                hash.inserir(new Palavra(word.toLowerCase()));
                 dictionary.add(word.toLowerCase());
             }
             reader.close();
@@ -155,21 +156,41 @@ class Editor extends JFrame implements ActionListener {
     private void validateWords() {
         if (dictionaryLoaded) {
             String text = textArea.getText();
+
             highlighter.removeAllHighlights();
 
             String[] words = text.split("\\W+");
+
             for (String word : words) {
-                if (!dictionary.contains(word.toLowerCase())) {
+                if (!hash.buscar(word.toLowerCase(getLocale()))) {
                     try {
-                        int startIndex = text.indexOf(word);
-                        int endIndex = startIndex + word.length();
-                        highlighter.addHighlight(startIndex, endIndex, highlightPainter);
+
+                        List<Integer> ocorrencias = countWord(word, text);
+
+                        for (int item : ocorrencias) {
+                            int startOcorrencia = item;
+                            int endOcorrencia = startOcorrencia + word.length();
+                            highlighter.addHighlight(startOcorrencia, endOcorrencia, highlightPainter);
+                        }
                     } catch (BadLocationException e) {
                         e.printStackTrace();
                     }
                 }
             }
+            System.out.println(hash);
         }
+    }
+
+    public List<Integer> countWord(String palavra, String texto) {
+        Pattern pattern = Pattern.compile("\\b" + palavra + "\\b");
+        Matcher matcher = pattern.matcher(texto);
+
+        List<Integer> ocorrencias = new ArrayList<>();
+        while (matcher.find()) {
+            Integer indiceInicio = matcher.start();
+            ocorrencias.add(indiceInicio);
+        }
+        return ocorrencias;
     }
 
     // Handle menu item actions
