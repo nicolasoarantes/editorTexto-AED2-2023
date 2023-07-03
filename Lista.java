@@ -24,16 +24,6 @@ public class Lista {
         No anterior = null;
         No atual = inicio;
 
-        System.out.println(hash);
-        System.out.println(atual.getInfo().getHash());
-
-        System.out.println("\n----------\n");
-
-        System.out.println(palavra);
-        System.out.println(atual.getInfo().getPalavra().intern());
-        System.out.println(
-                atual.getInfo().getHash() == hash && atual.getInfo().getPalavra().intern() == palavra.intern());
-
         while (atual != null) {
             if (atual.getInfo().getHash() == hash && atual.getInfo().getPalavra().intern() == palavra.intern()) {
                 if (anterior == null) {

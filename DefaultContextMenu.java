@@ -53,7 +53,7 @@ public class DefaultContextMenu extends JPopupMenu {
         // Palavra(textComponent.getSelectedText())));
         cut.addActionListener(event -> {
 
-            String[] palavras = textComponent.getSelectedText().split("\\W+");
+            String[] palavras = textComponent.getSelectedText().split("\\s");
             if (palavras.length > 1) {
                 for (String palavra : palavras) {
                     if (!hash.buscar(palavra.toLowerCase(getLocale()))) {
@@ -74,14 +74,12 @@ public class DefaultContextMenu extends JPopupMenu {
         copy.setEnabled(false);
         copy.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        // copy.addActionListener(event -> textComponent.cut());
         copy.addActionListener(event -> {
 
-            String[] palavras = textComponent.getSelectedText().split("\\W+");
+            String[] palavras = textComponent.getSelectedText().split("\\s");
             if (palavras.length > 1) {
                 for (String palavra : palavras) {
-                    if (!hash.buscar(palavra.toLowerCase(getLocale()))) {
-                        hash.inserir(new Palavra(palavra));
+                    if (hash.buscar(palavra.toLowerCase(getLocale()))) {
                         hash.remover(palavra);
                     }
                 }
@@ -93,28 +91,6 @@ public class DefaultContextMenu extends JPopupMenu {
         });
         add(copy);
 
-        // paste = new JMenuItem("Paste");
-        // paste.setEnabled(false);
-        // paste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,
-        // Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        // paste.addActionListener(event -> textComponent.paste());
-        // add(paste);
-
-        // delete = new JMenuItem("Delete");
-        // delete.setEnabled(false);
-        // delete.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE,
-        // Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        // delete.addActionListener(event -> textComponent.replaceSelection(""));
-        // add(delete);
-
-        // add(new JSeparator());
-
-        // selectAll = new JMenuItem("Select All");
-        // selectAll.setEnabled(false);
-        // selectAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,
-        // Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        // selectAll.addActionListener(event -> textComponent.selectAll());
-        // add(selectAll);
     }
 
     private void addTo(JTextComponent textComponent) {

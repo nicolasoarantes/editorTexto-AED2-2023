@@ -4,9 +4,13 @@ import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +41,7 @@ class Editor extends JFrame implements ActionListener {
     HashSet<String> dictionary;
     boolean dictionaryLoaded;
     Hash hash = new Hash(10);
-    
+
     Editor() {
         System.setProperty("file.encoding", "UTF-8");
         frame = new JFrame("Editor");
@@ -45,6 +49,7 @@ class Editor extends JFrame implements ActionListener {
 
         // Create a text area
         textArea = new JTextArea();
+
         DefaultContextMenu.addDefaultContextMenu(textArea, hash);
 
         // Create a scroll pane and add the text area to it
@@ -133,11 +138,31 @@ class Editor extends JFrame implements ActionListener {
         frame.setVisible(true);
     }
 
+    // // Load the dictionary from file
+    // private void loadDictionary() {
+
+    // try {
+    // BufferedReader reader = new BufferedReader(new FileReader("dictionary.txt"));
+    // String word;
+    // dictionary = new HashSet<>();
+    // while ((word = reader.readLine()) != null) {
+    // hash.inserir(new Palavra(word.toLowerCase()));
+    // dictionary.add(word.toLowerCase());
+    // }
+    // reader.close();
+    // dictionaryLoaded = true;
+    // } catch (IOException e) {
+    // JOptionPane.showMessageDialog(frame, "Dictionary File Not Found");
+    // dictionaryLoaded = false;
+    // }
+    // }
+
     // Load the dictionary from file
     private void loadDictionary() {
-
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("dictionary.txt"));
+            Charset cs = Charset.forName("UTF-8");
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream("dictionary.txt"), cs));
             String word;
             dictionary = new HashSet<>();
             while ((word = reader.readLine()) != null) {
@@ -159,7 +184,13 @@ class Editor extends JFrame implements ActionListener {
 
             highlighter.removeAllHighlights();
 
-            String[] words = text.split("\\W+");
+            String[] words = text.split("\\s");
+
+            System.out.println("###### WORDS");
+            for (String word : words) {
+                System.out.println(word);
+            }
+            System.out.println("######");
 
             for (String word : words) {
                 if (!hash.buscar(word.toLowerCase(getLocale()))) {
@@ -222,13 +253,36 @@ class Editor extends JFrame implements ActionListener {
     }
 
     // Open a file
+    // private void openFile() {
+    // fileChooser = new JFileChooser();
+    // int option = fileChooser.showOpenDialog(frame);
+    // if (option == JFileChooser.APPROVE_OPTION) {
+    // File file = fileChooser.getSelectedFile();
+    // try {
+    // BufferedReader reader = new BufferedReader(new FileReader(file));
+    // StringBuilder text = new StringBuilder();
+    // String line;
+    // while ((line = reader.readLine()) != null) {
+    // text.append(line).append("\n");
+    // }
+    // reader.close();
+    // textArea.setText(text.toString());
+    // } catch (IOException e) {
+    // JOptionPane.showMessageDialog(frame, "Failed to open file: " +
+    // e.getMessage());
+    // }
+    // }
+    // }
+
+    // Open a file
     private void openFile() {
         fileChooser = new JFileChooser();
         int option = fileChooser.showOpenDialog(frame);
         if (option == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             try {
-                BufferedReader reader = new BufferedReader(new FileReader(file));
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
                 StringBuilder text = new StringBuilder();
                 String line;
                 while ((line = reader.readLine()) != null) {
